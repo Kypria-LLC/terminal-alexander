@@ -1,0 +1,30 @@
+name: Badge Automation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'badges/**'
+
+jobs:
+  issue-badge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Issue Bronze Badge
+        run: |
+          node dist/index.js issue \
+            --tier bronze \
+            --userId ${{ secrets.DISCORD_USER_ID }}
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
