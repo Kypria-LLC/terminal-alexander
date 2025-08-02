@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import { issueBadge } from '../badges/issueBadge';
+import { Logger } from '../logs/logger';
+
+const logger = new Logger();
+
+yargs(hideBin(process.argv))
+  .command(
+    'issue',
+    'Issue a sponsor badge in Discord',
+    yargs => {
+      yargs
+        .option('tier', {
+          type: 'string',
+          demandOption: true,
+          describe: 'Tier to award (bronze|silver|gold)'
+        })
+        .option('userId', {
+          type: 'string',
+          demandOption: true,
+          describe: 'Discord user ID'
+        });
+    },
+    async args => {
+      try {
+        await issueBadge(args.tier as string, args.userId as string);
+        logger.log(`Badge issued: ${args.tier} to ${args.userId}`);
+      } catch (err) {
+        logger.error(err as Error);
+        process.exit(1);
+      }
+    }
+  )
+  .demandCommand()
+  .strict()
+  .help().argv;
